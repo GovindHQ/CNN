@@ -58,3 +58,48 @@ This is where `RCV_L2 = 0`:
 - Then **accumulate** those 16 outputs → single pixel of one fmap.
     
 - This matches the `mac_array` module's **accum tree**.
+
+i made a line buffer module, which is a two row bram, stores the two most recent rows of 28 pixels passes . which is layer to be manipulated into 3x3 windows as shift register window.
+
+// Access pixel at row r, column c
+logic [15:0] p = image_data[r * 28 + c];
+
+thought of a three line buffer since without that, the window maker would need to wait each pixel of the next row. so that we can directly read any pixel in all three rows at ones to make the window.
+
+once initialized (after first two rows) you get, 1 valid 3x3 winndow every clock.
+
+each clock, one window will be formed so 28 windows, and one pixel each clock loaded into next line buffer row. so three rows are always ready when new row is needed for the window.
+
+
+writing the window_maker, which takes the three rows as input and forms the windows. and slides it. 
+
+making the conv_wt_mem - - `wt_mem0` holds the 9 weights for filter 0 → used by **MAC 0**
+    
+- `wt_mem1` holds the 9 weights for filter 1 → used by **MAC 1**
+    
+- ...
+    
+- `wt_mem15` → **MAC 15**
+
+once lineBuffer and windowMaker are warmed up
+ 
+
+|Cycle|Action|
+|---|---|
+|1–9|Read 9 weights from each `wt_memX` (addr 0–8), 1 per cycle|
+||Store 9 pixel values from current window|
+|10|Flatten `ifmap_chunk[x]` and `wt[x]`, send to `mac_array`|
+|11+|Output `accum_o[x]`, valid_o toggles|
+
+instantiate 16 copies of wt_mem with MEM_ID from 0 to 8 in cnn_top
+
+the weight sender gets weights from the wt_memX, flattens them and sends to mac array
+
+writing the cnn_top module that integrates and initiates the lineBuffer, windowmaker, 16 wt_mem, weight sender, mac array
+each mac has its own weights from filterX.txt
+ouputs 16 parallel convolution results.
+
+im writing for one layer
+
+it takes input pixel and sends it to line buffer too. i need to connect the result to a feature map memory module.
+
