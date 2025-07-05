@@ -103,3 +103,6 @@ im writing for one layer
 
 it takes input pixel and sends it to line buffer too. i need to connect the result to a feature map memory module.
 
+i used win_trigger = win_valid cause start on weight_sender must be a 1 cycle pulse where a window is valid. its often unsafe to directly connect a valid signals to modules expecting a 1 cycle start events, because valid signals might remain high multiple cycles. win_trigger serves as a clear handshake trigger between windowMaker and weight_sender.
+
+

@@ -12,13 +12,19 @@
 
 // version for only one layer
 
+//now writing the version for both layer 2 and 3
+
+
 module cnn_top(
     input logic clk,
     input logic rst
     input logic in_valid,
     input logic [15:0] pixel_in; //for the linebuffer
-    output logic valid_out,
-    output logic [17:0] result [15:0]; //output feature map values from mac_array
+    output logic valid_out_l2,
+    output logic valid_out_l3,
+    output logic [17:0] fmap_mem_l2 [0:27][0:27][15:0],
+    output logic [17:0] fmap_mem_l3 [0:27][0:27] //output feature map values from mac_array of layer 2
+     //output of layer 3 (accumulated)
 
 );
     //----Intermediate wires----(between modules)
@@ -42,6 +48,9 @@ module cnn_top(
 
     logic [(9*16)-1:0] ifmap_flat [15:0];
     logic win_trigger;
+
+    logic [17:0] mac_out [15:0];
+    logic [17:0] mac_l3_result;
 
     //--initiation--
 
@@ -94,13 +103,60 @@ module cnn_top(
         .wt_flat(wt_flat)
     );
 
-    //---MAC array---
+    //---Layer 2 MAC array---
     mac_array mac_arr_inst(
         .clk(clk), .rst(rst), .RCL_L2(1'b1), //assume layer 2 output
-        .valid_i(wt_done), .valid_o(valid_out),
+        .valid_i(wt_done), .valid_o(valid_out_l2),
         .ifmap_chunk(ifmap_flat), .wt(wt_flat),
-        .accum_o(result)
+        .accum_o(mac_out)
     );
+
+
+
+    //---Write to layer 2 feature map ram---
+    always_ff @(posedge clk) begin
+        if(valid_out_l2) begin
+            for(int i = 0; i < 16; i++) begin
+                fmap_mem_l2[fmap_y][fmap_x][i] <= mac_out[i];
+            end
+        end
+    end
+
+    //---Layer 3 MAC array---
+    mac_array mac_arr_l3 (
+        .clk(clk), .rst(rst), .RCV_L2(1'b0),
+        .valid_i(valid_out_l2), .valid_o(valid_out_l3),
+        .ifmap_chunk(ifmap_flat), .wt(wt_flat),
+        .accum_o({mac_l3_result, {15{18'd0}}}) // only accum_o[0] used
+    );
+
+
+
+    // --- Write to Layer 3 Feature Map RAM ---
+    always_ff @(posedge clk) begin
+        if (valid_out_l3)
+            fmap_mem_l3[fmap_y][fmap_x] <= mac_l3_result;
+    end
+
+    //---Feature map coordinate tracking---
+    always_ff @(posedge clk or negedge rst) begin
+        if (rst) begin
+            fmap_x <= 0;
+            fmap_y <= 0;
+        end else if (valid_out_l2) begin
+            if(fmap_x == 27) begin
+                fmap_x <= 0;
+                if(fmap_y == 27)
+                    fmap_y <= 0;
+                else
+                    fmap_y <= fmap_y + 1;
+                end else begin
+                    fmap_x <= fmap_x + 1;
+                end
+            end
+        end
+
+
 endmodule
 
 

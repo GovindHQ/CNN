@@ -1,0 +1,178 @@
+{
+  "main": {
+    "id": "8d77ffad3a7deeff",
+    "type": "split",
+    "children": [
+      {
+        "id": "9c2f3e0f68666f43",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bbb2831b82a0aeb8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "week 7.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "week 7"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "21342040d36378e2",
+    "type": "split",
+    "children": [
+      {
+        "id": "b2916b9f1c124639",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c29123d5fd1e18bb",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "e3e009bd9e53b38c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "b70eb6a7b9c7b0ee",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "00a8cb6c9adc1970",
+    "type": "split",
+    "children": [
+      {
+        "id": "698fac167408a95d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7bad214b92eb9840",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "week 7.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for week 7"
+            }
+          },
+          {
+            "id": "bc80ba40b7bd738d",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "week 7.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from week 7"
+            }
+          },
+          {
+            "id": "68797ef601547b23",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "832fd7fb55f49756",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "week 7.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of week 7"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "bbb2831b82a0aeb8",
+  "lastOpenFiles": [
+    "week 6.md",
+    "week 7.md",
+    "Convolution neural networks.md",
+    "week 5.md"
+  ]
+}
