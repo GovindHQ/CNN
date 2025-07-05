@@ -100,7 +100,9 @@ module cnn_top(
         .valid_i(wt_done), .valid_o(valid_out),
         .ifmap_chunk(ifmap_flat), .wt(wt_flat),
         .accum_o(result)
-    )
+    );
+endmodule
+
 
 
 
