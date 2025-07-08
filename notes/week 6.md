@@ -33,7 +33,7 @@ This is what `RCV_L2 = 1` means:
 
 - **Input**: 16 channels (`28×28×16`)
     
-- **Output**: e.g., `14×14×16` after pooling/stride
+- **Output**: 28x28
     
 - Now, **each filter spans _all_ 16 input channels**.
 his is the key difference.
