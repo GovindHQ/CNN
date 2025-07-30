@@ -52,6 +52,10 @@ module cnn_top(
     logic [17:0] mac_out [15:0];
     logic [17:0] mac_l3_result;
 
+    logic [17:0] fmap_relu [0:27][0:27][0:15];
+    logic map_l2_done;
+    logic relu_done;
+
     //--initiation--
 
     //---Line Buffer---
@@ -65,9 +69,10 @@ module cnn_top(
         .clk(clk), .rst(rst), .in_valid(rows_ready),
         .win00(win00), .win01(win01), .win02(win02),
         .win10(win10), .win11(win11), .win12(win12),
-        .win20(win20), .win21(21), .win22(win22) 
+        .win20(win20), .win21(win21), .win22(win22)
         .o_valid(win_valid)
     );
+
 
     assign win_trigger = win_valid; //to be send to window sender
 
@@ -122,11 +127,54 @@ module cnn_top(
         end
     end
 
+
+
+    always_ff @(posedge clk or posedge rst) begin //check if the feature map memory is fully written only then triggers the valid signal which is used to trigger the relu pool unit.
+        if (rst)
+            map_l2_done <= 0;
+        else
+            map_l2_done <= (valid_oulogic map_l2_done;
+
+always_ff @(posedge clk or posedge rst) begin
+    if (rst)
+        map_l2_done <= 1'b0;
+    else
+    //fire when the last pixel of l2 has been written
+        map_l2_done <= (valid_out_l2 && fmap_x == 27 && fmap_y == 27);
+end
+
+
+
+      //---Relu_unit initiation---
+    relu_unit relu_unit_inst(
+        .clk(clk), .rst(rst), .start(map_l2_done),
+        .fmap_in(fmap_mem_l2), .fmap_out(fmap_relu),
+        .done(relu_done)
+    );
+
+
+    //--window maker for layer 3 input from fmap_mem_l2
+    logic win3_valid, win3_done;
+    logic [(9*18)-1:0] ifmap_flat_l3 [0:15]; //16 windows of 9 pixels each
+    logic mac3_ready;
+
+    window_maker3 wm_l3_inst(
+        .clk(clk),
+        .rst(rst),
+        .start(relu_done), //only start once reLu done
+        .ready_i(mac3_ready), //back pressure from mac
+        .fmap_in(fmap_relu), //28×28×16 post‐ReLU map
+        .ifmap_chunk(ifmap_flat_l3),// 16 windows of 9 pixels each
+        .o_valid  (win3_valid),     // one-cycle valid per window
+        .done     (win3_done)       // fires after last window
+    );
+
     //---Layer 3 MAC array---
     mac_array mac_arr_l3 (
         .clk(clk), .rst(rst), .RCV_L2(1'b0),
-        .valid_i(valid_out_l2), .valid_o(valid_out_l3),
-        .ifmap_chunk(ifmap_flat), .wt(wt_flat),
+        .valid_i(win3_valid), .valid_o(valid_out_l3),
+        .ready_o(mac3_ready),
+        .ifmap_chunk(ifmap_flat_l3), .wt(wt_flat),
         .accum_o({mac_l3_result, {15{18'd0}}}) // only accum_o[0] used
     );
 
@@ -137,6 +185,8 @@ module cnn_top(
         if (valid_out_l3)
             fmap_mem_l3[fmap_y][fmap_x] <= mac_l3_result;
     end
+
+
 
     //---Feature map coordinate tracking---
     always_ff @(posedge clk or negedge rst) begin
@@ -155,6 +205,8 @@ module cnn_top(
                 end
             end
         end
+
+
 
 
 endmodule

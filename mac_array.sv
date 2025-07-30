@@ -18,6 +18,7 @@ input RCV_L2, //receive layer 2 - this mac array is being used to compute the fe
 //accumulated value if ur using this layer in deeper layers of the CNN.
 input valid_i;
 output valid_o;
+output ready_o; //Ready to accept windows from windowmaker
 input [(MULTS_PER_MAC*(DEC_BITS+MANTISSA_BITS))-1:0] ifmap_chunk [NUM_MACS-1:0],   // A flattened 3x3 window of 16-bit input feature map pixels
 input [(MULTS_PER_MAC*(DEC_BITS+MANTISSA_BITS))-1:0] wt [NUM_MACS-1:0],           // A flattened 3x3 window of 16-bit weights
 output reg [17:0] accum_o [NUM_MACS-1:0]
@@ -36,6 +37,12 @@ reg [MAX_DELAY-1:0] delay_sreg;
 //If the output convolution will be the layer 2 output, we need only delay by 3 cycles
 //otherwise 5(3 cycles for one window convolutio, 2 more to accumulate all window convolutions)
 assign valid_o = (RCV_L2) ? delay_sreg[2] : delay_sreg[4]
+
+reg busy; //set when you accept a new window, clear when output is valid
+
+//ready_o: if not busy we can accept a new valid_i
+assign ready_o = ~busy;
+
 
 //Accumulation registers to accumulae all window convolutions. Only used for layer after layer 2
 wire signed [17:0] accum1, accum2, accum3, accum4;
@@ -86,6 +93,7 @@ begin
         accum4_reg <= 0;
         accum_final_reg <= 0;
         delay_sreg <= 0;
+        busy <= 1'b0;
     end else begin
         accum1_reg <= accum1;
         accum2_reg <= accum2;
@@ -120,6 +128,16 @@ begin
         delay_sreg[2] <= delay_sreg[1];
         delay_sreg[1] <= delay_sreg[0];
         delay_sreg[0] <= valid_i;
+
+        //update busy flag for the valid-ready handshake
+        if (valid_i && ~busy) begin
+        //we just accepted a new window, go busy
+        busy <= 1'b1;
+        end else if (valid_o) begin
+        //our output is now valid, free up for next window
+        busy <= 1'b0;
+        end
+
 end
 
 
